@@ -36,22 +36,25 @@ namespace gfx {
 void initGfxBindings(py::module& m) {
   // ==== RenderCamera ====
   py::class_<RenderCamera, Magnum::SceneGraph::PyFeature<RenderCamera>,
-             Magnum::SceneGraph::AbstractFeature3D,
+             Magnum::SceneGraph::Camera3D,
              Magnum::SceneGraph::PyFeatureHolder<RenderCamera>>(
       m, "Camera",
       R"(RenderCamera: The object of this class is a camera attached
       to the scene node for rendering.)")
       .def(py::init_alias<std::reference_wrapper<scene::SceneNode>,
                           const vec3f&, const vec3f&, const vec3f&>())
-      .def("setProjectionMatrix", &RenderCamera::setProjectionMatrix, R"(
-        Set this `Camera`'s projection matrix.
+      .def("setProjectionMatrix",
+           py::overload_cast<int, int, float, float, float>(
+               &RenderCamera::setProjectionMatrix),
+           R"(
+        Set this `Camera`'s projection matrix via view configuration.
       )",
            "width"_a, "height"_a, "znear"_a, "zfar"_a, "hfov"_a)
-      .def("getProjectionMatrix", &RenderCamera::getProjectionMatrix, R"(
-        Get this `Camera`'s projection matrix.
-      )")
-      .def("getCameraMatrix", &RenderCamera::getCameraMatrix, R"(
-        Get this `Camera`'s camera matrix.
+      .def("setProjectionMatrix",
+           py::overload_cast<const Magnum::Matrix4&>(
+               &RenderCamera::setProjectionMatrix),
+           R"(
+        Set this `Camera`'s projection matrix directly.
       )")
       .def_property_readonly("node", nodeGetter<RenderCamera>,
                              "Node this object is attached to")

@@ -11,12 +11,9 @@ namespace Mn = Magnum;
 namespace esp {
 namespace gfx {
 
-RenderCamera::RenderCamera(scene::SceneNode& node)
-    : Mn::SceneGraph::AbstractFeature3D{node} {
+RenderCamera::RenderCamera(scene::SceneNode& node) : MagnumCamera{node} {
   node.setType(scene::SceneNodeType::CAMERA);
-  camera_ = new MagnumCamera(node);
-  camera_->setAspectRatioPolicy(
-      Mn::SceneGraph::AspectRatioPolicy::NotPreserved);
+  setAspectRatioPolicy(Mn::SceneGraph::AspectRatioPolicy::NotPreserved);
 }
 
 RenderCamera::RenderCamera(scene::SceneNode& node,
@@ -35,26 +32,10 @@ void RenderCamera::setProjectionMatrix(int width,
                                        float zfar,
                                        float hfov) {
   const float aspectRatio = static_cast<float>(width) / height;
-  camera_
-      ->setProjectionMatrix(Mn::Matrix4::perspectiveProjection(
-          Mn::Deg{hfov}, aspectRatio, znear, zfar))
+  MagnumCamera::setProjectionMatrix(
+      Mn::Matrix4::perspectiveProjection(Mn::Deg{hfov}, aspectRatio, znear,
+                                         zfar))
       .setViewport(Magnum::Vector2i(width, height));
-}
-
-mat4f RenderCamera::getProjectionMatrix() {
-  return Eigen::Map<mat4f>(camera_->projectionMatrix().data());
-}
-
-mat4f RenderCamera::getCameraMatrix() {
-  return Eigen::Map<mat4f>(camera_->cameraMatrix().data());
-}
-
-MagnumCamera& RenderCamera::getMagnumCamera() {
-  return *camera_;
-}
-
-void RenderCamera::draw(MagnumDrawableGroup& drawables) {
-  camera_->draw(drawables);
 }
 
 }  // namespace gfx
